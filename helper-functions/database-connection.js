@@ -18,7 +18,7 @@ const pool = new Pool({
 const checkMembership = async (email) => {
 
     const client = await pool.connect();
-    var response = await client.query(`SELECT * FROM users WHERE email='${email}'`);
+    let response = await client.query(`SELECT * FROM users WHERE email='${email}'`);
     client.release();
 
     if (response['rowCount'] != 0 && response['rows'][0]['status']) {
@@ -31,7 +31,7 @@ const checkMembership = async (email) => {
 const insertUser = async (query) => {
 
     const client = await pool.connect();
-    var response = await client.query(query);
+    let response = await client.query(query);
     client.release();
 
     return response['rowCount'];
@@ -40,14 +40,48 @@ const insertUser = async (query) => {
 const insertCSVData = async (query) => {
 
     const client = await pool.connect();
-    var response = await client.query(query);
+    let response = await client.query(query);
     client.release();
 
     return response['rowCount'];
-}; 
+};
+
+const insertUserVisit = async (query) => {
+    
+    const client = await pool.connect();
+    let response = await client.query(query);
+    client.release()
+    
+    return response['rowCount'];
+};
+
+const getAllUserEmail = async () => {
+
+    const client = await pool.connect();
+    let response = await client.query('SELECT DISTINCT email FROM userlog');
+    client.release();
+
+    if (response['rowCount'] != 0) {
+        let rows = response['rows'];
+        let emails = [];
+        rows.forEach(row => {
+            emails.push(row['email']);
+        });
+        return {
+            'status': 1,
+            'emails': emails
+        };
+    } else {
+        return {
+            'status': 0
+        };
+    }
+};
 
 module.exports = {
     checkMembership,
     insertUser,
-    insertCSVData
+    insertCSVData,
+    insertUserVisit,
+    getAllUserEmail
 }

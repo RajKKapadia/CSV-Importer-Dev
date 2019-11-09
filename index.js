@@ -76,9 +76,21 @@ app.get('/getLogin', async (req, res) => {
     req.session.email = userData['data']['email'];
 
     if (userData['data']['email'] === 'aravind.mohanoor@gmail.com') {
-        res.render('add-user.hbs');
+        res.render('admin-dashboard.hbs');
     } else {
-        res.render('upload.hbs');
+
+        let query = {};
+        query['text'] = 'INSERT INTO userlog(email) VALUES($1)';
+        query['values'] = [userData['data']['email']];
+
+        let flag = await hf.dc.insertUserVisit(query);
+
+        if (flag == 1) {
+            res.render('upload.hbs');   
+        } else {
+            console.log('Error at inserUserVisit.');
+            res.render('upload.hbs');
+        }
     }
 });
 
@@ -147,7 +159,7 @@ app.post('/upload', async (req, res) => {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentFour(data, language);
-                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data });
+                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -161,7 +173,7 @@ app.post('/upload', async (req, res) => {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentEight(data, language);
-                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data });
+                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -175,7 +187,7 @@ app.post('/upload', async (req, res) => {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentTen(data, language);
-                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data });
+                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -229,6 +241,10 @@ app.get('/admin', (req, res) => {
     res.render('admin-login.hbs');
 });
 
+app.get('/add-user-page', (req, res) => {
+    res.render('add-user.hbs');
+});
+
 app.post('/add-user', async (req, res) => {
 
     var query = {};
@@ -247,6 +263,26 @@ app.post('/add-user', async (req, res) => {
         res.render('add-user.hbs', { successMessage: 'User added successfully.' });
     } else {
         res.render('add-user.hbs', { errorMessage: 'Something went wrong, please try again.' });
+    }
+});
+
+app.get('/view-users', async (req, res) => {
+
+    // get all the users
+    let data = await hf.dc.getAllUserEmail();
+
+    if (data['status'] == 1) {
+
+        let emails = data['emails'];
+
+        if (emails.length == 0) {
+            res.render('view-users.hbs', { message: 'No user has visited the app.' });
+        } else {
+            res.render('view-users.hbs', { emails });   
+        }
+        
+    } else {
+        res.render('view-users.hbs');
     }
 });
 

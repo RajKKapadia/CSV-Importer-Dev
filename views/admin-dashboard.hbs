@@ -18,21 +18,9 @@
 
     <div class="container-fluid">
         <div class="text-center">
-            <h1 class="text-primary">Add New User Here</h1>
-            <p class="text-success">{{successMessage}}</p>
-            <p class="text-danger">{{errorMessage}}</p>
+            <h1 class="text-primary">Admin Dashboard</h1>
             <br />
-            <form action="/add-user" enctype="multipart/form-data" method="POST">
-                <div class="text-center">
-                    <label>Email:</label>
-                    <input type="text" name="email">
-                </div>
-                <br />
-                <div class="text-center">
-                    <label class="text-danger">Check for Paid User:</label>
-                    <input type="checkbox" name="status" value="true">
-                </div>
-                <br />
+            <form action="/add-user-page" enctype="multipart/form-data" method="GET">
                 <button type="submit" class="button-primary">Add User</button>
             </form>
             <br />

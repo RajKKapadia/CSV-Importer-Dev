@@ -83,21 +83,32 @@ const createIntentFour = async (data, language) => {
 
     let result = mf.getintentIDCount(intentID);
 
-    let maxIntent = fs.readdirSync('./example/intents/').length;
+    let index = 0, ic = 0, maxRows = 0, maxIntent;
 
-    let ic = 0, index = 0;
-
-    for (let i = 0; i < maxIntent; i++) {
+    for (let i = 0; i < result[1].length; i++) {
 
         var speech = [];
 
-        for (let j = 0; j < result[1][i]; j++) {
+        if (result[1][i] > 5) {
+            maxIntent = 5;
+        } else {
+            maxIntent = result[1][i];
+        }
+
+        for (let j = 0; j < maxIntent; j++) {
 
             if (data[index]['Response']) {
                 speech.push(data[index]['Response']);
             }
 
             index++;
+
+            // For unpaid user restriction
+            maxRows++;
+            if (maxRows == 99) {
+                maxRows++;
+                break;
+            }
         }
 
         var finalJson = {
@@ -129,6 +140,11 @@ const createIntentFour = async (data, language) => {
         fs.writeFileSync(`./example/intents/${data[ic]['IntentName']}.json`, JSON.stringify(finalJson));
 
         ic += result[1][i];
+
+        // For unpaid users
+        if (maxRows == 100) {
+            break;
+        }
     }
 };
 
@@ -144,11 +160,9 @@ const createIntentEight = async (data, language) => {
 
     let result = mf.getintentIDCount(intentID);
 
-    let maxIntent = fs.readdirSync('./example/intents/').length;
+    let index = 0, ic = 0, maxRows = 0, maxIntent;
 
-    let ic = 0, index = 0;
-
-    for (let i = 0; i < maxIntent; i++) {
+    for (let i = 0; i < result[1].length; i++) {
 
         var contexts = [];
 
@@ -156,7 +170,13 @@ const createIntentEight = async (data, language) => {
 
         var affectedContext = [];
 
-        for (let j = 0; j < result[1][i]; j++) {
+        if (result[1][i] > 5) {
+            maxIntent = 5;
+        } else {
+            maxIntent = result[1][i];
+        }
+
+        for (let j = 0; j < maxIntent; j++) {
 
             if (data[index]['Response']) {
                 speech.push(data[index]['Response']);
@@ -178,6 +198,13 @@ const createIntentEight = async (data, language) => {
             }
 
             index++;
+
+            // For unpaid user restriction
+            maxRows++;
+            if (maxRows == 99) {
+                maxRows++;
+                break;
+            }
         }
 
         var finalJson = {
@@ -218,6 +245,11 @@ const createIntentEight = async (data, language) => {
         fs.writeFileSync(`./example/intents/${data[ic]['IntentName']}.json`, JSON.stringify(finalJson));
 
         ic += result[1][i];
+
+        // For unpaid users
+        if (maxRows == 100) {
+            break;
+        }
     }
 };
 
@@ -233,11 +265,9 @@ const createIntentTen = async (data, language) => {
 
     let result = mf.getintentIDCount(intentID);
 
-    let maxIntent = fs.readdirSync('./example/intents/').length;
+    let index = 0, ic = 0, maxRows = 0, maxIntent;
 
-    let ic = 0, index = 0;
-
-    for (let i = 0; i < maxIntent; i++) {
+    for (let i = 0; i < result[1].length; i++) {
 
         var contexts = [];
 
@@ -247,7 +277,13 @@ const createIntentTen = async (data, language) => {
 
         var affectedContext = [];
 
-        for (let j = 0; j < result[1][i]; j++) {
+        if (result[1][i] > 5) {
+            maxIntent = 5;
+        } else {
+            maxIntent = result[1][i];
+        }
+
+        for (let j = 0; j < maxIntent; j++) {
 
             if (data[index]['Response']) {
                 speech.push(data[index]['Response']);
@@ -273,6 +309,13 @@ const createIntentTen = async (data, language) => {
             }
 
             index++;
+
+            // For unpaid user restriction
+            maxRows++;
+            if (maxRows == 99) {
+                maxRows++;
+                break;
+            }
         }
 
         var finalJson = {
@@ -325,6 +368,11 @@ const createIntentTen = async (data, language) => {
         fs.writeFileSync(`./example/intents/${data[ic]['IntentName']}.json`, JSON.stringify(finalJson));
 
         ic += result[1][i];
+
+        // For unpaid users
+        if (maxRows == 100) {
+            break;
+        }
     }
 };
 
