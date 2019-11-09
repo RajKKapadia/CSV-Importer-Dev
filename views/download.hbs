@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Download Dialogflow agent ZIP file from CSV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <br />
+
+    <div class="container-fluid">
+        <div class="text-center">
+            <h1 class="text-primary">Download agent.zip File</h1>
+            <br />
+            <form action="/download" method="GET">
+                <button type="submit">Download</button>
+            </form>
+            <br />
+            <form action="/again" method="GET">
+                <button type="submit">Home</button>
+            </form>
+        </div>
+
+        <h2 class="text-info">Please take a look at the data</h2>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    {{#each columnNames}}
+                    <th>{{this}}</th>
+                    {{/each}}
+                </tr>
+            </thead>
+            <tbody>
+
+                {{#if four}}
+                {{#each data}}
+                <tr>
+                    <td>{{this.IntentID}}</td>
+                    <td>{{this.IntentName}}</td>
+                    <td>{{this.Query}}</td>
+                    <td>{{this.Response}}</td>
+                </tr>
+                {{/each}}
+                {{/if}}
+
+                {{#if eight}}
+                {{#each data}}
+                <tr>
+                    <td>{{this.IntentID}}</td>
+                    <td>{{this.IntentName}}</td>
+                    <td>{{this.Query}}</td>
+                    <td>{{this.Response}}</td>
+                    <td>{{this.Action}}</td>
+                    <td>{{this.InputContext}}</td>
+                    <td>{{this.OutputContext}}</td>
+                    <td>{{this.Lifespan}}</td>
+                </tr>
+                {{/each}}
+                {{/if}}
+
+                {{#if ten}}
+                {{#each data}}
+                <tr>
+                    <td>{{this.IntentID}}</td>
+                    <td>{{this.IntentName}}</td>
+                    <td>{{this.Query}}</td>
+                    <td>{{this.Response}}</td>
+                    <td>{{this.Response2}}</td>
+                    <td>{{this.Action}}</td>
+                    <td>{{this.InputContext}}</td>
+                    <td>{{this.OutputContext}}</td>
+                    <td>{{this.Lifespan}}</td>
+                    <td>{{this.CallsWebhook}}</td>
+                </tr>
+                {{/each}}
+                {{/if}}
+
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+
+</html>

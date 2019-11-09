@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Upload CSV file</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <br />
+
+    <div class="container-fluid">
+        <div class="text-center">
+            <h1 class="text-primary">Upload your CSV file</h1>
+            <br />
+            <p class="text-info">Language Textbox Information</p>
+            <p class="text-info">The letter code for your target language as displayed inside Dialogflow (e.g. Use de for German). Case sensitive. Leave it blank for regular English.</p>
+            <p class="text-info"><a href="https://cloud.google.com/dialogflow/docs/reference/language" target="_blank">See All Language Tags</a></p>
+            <form action="/upload" enctype="multipart/form-data" method="POST">
+                <div class="text-center">
+                    <label>Language:</label>
+                    <input type="text" name="language">
+                </div>
+                <br />
+                <input type="file" name="upload">
+                <button type="submit" class="button-primary">Upload</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
