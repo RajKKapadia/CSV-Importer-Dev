@@ -286,6 +286,6 @@ app.get('/view-users', async (req, res) => {
     }
 });
 
-app.listen(5000, () => {
+app.listen(process.env.PORT, () => {
     console.log('Server is listening on port 5000.');
 });
