@@ -1,19 +1,19 @@
 const { Pool } = require('pg');
 
-// For Heroku
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: true
-});
-
-// // For Local Machine
+// // For Heroku
 // const pool = new Pool({
-//     host: 'localhost',
-//     user: 'postgres',
-//     database: 'CSV-Importer',
-//     password: 'abc123',
-//     port: '5433'
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: true
 // });
+
+// For Local Machine
+const pool = new Pool({
+    host: 'localhost',
+    user: 'postgres',
+    database: 'CSV-Importer',
+    password: 'abc123',
+    port: '5433'
+});
 
 const checkMembership = async (email) => {
 

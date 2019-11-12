@@ -19,8 +19,13 @@
     <div class="container-fluid">
         <div class="text-center">
             <h1 class="text-info">Something is not right. See the error below.</h1>
-            <p class="text-danger">{{message}}</p>
             <br />
+            <p class="text-danger">{{message}}</p>
+            {{#if url}}
+            <p class="text-info">
+                <a href="https://airtable.com/shrptImAEmkRyH8he/tbl3GD5iv7NJfUjmi/viwmt00q6jm9gFUwR?blocks=hide" target="_blank" >Sample CSV File</a>
+            </p>
+            {{/if}}
             <form action="/again" method="GET">
                 <button type="submit">Home</button>
             </form>

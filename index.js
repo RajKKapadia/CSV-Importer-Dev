@@ -35,7 +35,7 @@ app.set('view engine', 'hbs');
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
     process.env.CLIENT_SECRET,
-    'http://localhost:5000/getLogin'
+    process.env.REDIRECT_URL
 );
 
 const scopes = [
@@ -119,6 +119,8 @@ app.post('/upload', async (req, res) => {
             language = 'en';
         }
 
+        console.log(language);
+
         // Write the file here
         let dir = './upload';
 
@@ -147,19 +149,29 @@ app.post('/upload', async (req, res) => {
                     'Response2', 'Action', 'InputContext', 'OutputContext',
                     'Lifespan', 'CallsWebhook'];
 
-                columnNames.forEach(col => {
-                    if (!ourColumns.includes(col)) {
-                        res.render('error.hbs', { message: 'Please check the CSV file Column names, use only coma separated values, do not use semi-colon as a separater.' });
-                    }
-                });
+                if (count != 4 && count != 8 && count != 10) {
 
-                if (count == 4) {
+                    console.log('More Column');
+
+                    res.render('error.hbs', {message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1 })
+
+                } else if (count == 4) {
+
+                    console.log('Count 4');
+
+                    // columnNames.forEach(col => {
+                    //     if (!ourColumns.includes(col)) {
+                    //         console.log('Bad CSV');
+                    //         res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1 });
+                    //     }
+                    // });
 
                     if (status == 0) {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentFour(data, language);
-                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        let newData = hf.mif.generateDataUnpaidUsers(data);
+                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data: newData, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -168,12 +180,15 @@ app.post('/upload', async (req, res) => {
                     }
                     
                 } else if (count == 8) {
+
+                    console.log('Count 8');
                     
                     if (status == 0) {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentEight(data, language);
-                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        let newData = hf.mif.generateDataUnpaidUsers(data);
+                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data: newData, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -181,13 +196,16 @@ app.post('/upload', async (req, res) => {
                         res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data });
                     }
 
-                } else {
+                } else if (count == 10) {
+
+                    console.log('Count 10');
                     
                     if (status == 0) {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentTen(data, language);
-                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        let newData = hf.mif.generateDataUnpaidUsers(data);
+                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data: newData, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);

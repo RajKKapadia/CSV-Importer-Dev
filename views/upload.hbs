@@ -26,7 +26,19 @@
             <form action="/upload" enctype="multipart/form-data" method="POST">
                 <div class="text-center">
                     <label>Language:</label>
-                    <input type="text" name="language">
+                    <select name="language">
+                        <option value="en">English</option>
+                        <option value="da">Danish</option>
+                        <option value="nl">Dutch</option>
+                        <option value="en-AU">English - Australia</option>
+                        <option value="en-CA">English - Canada</option>
+                        <option value="en-GB">English - Great Britain</option>
+                        <option value="en-IN">English - India</option>
+                        <option value="en-US">English - US</option>
+                        <option value="fr">French</option>
+                        <option value="fr-CA">French - Canada</option>
+                        <option value="fr-FR">French - France</option>
+                    </select>
                 </div>
                 <br />
                 <input type="file" name="upload">
