@@ -151,9 +151,26 @@ app.post('/upload', async (req, res) => {
                 let ourColumns = [
                     'IntentID', 'IntentName', 'Query', 'Response',
                     'Response2', 'Action', 'InputContext', 'OutputContext',
-                    'Lifespan', 'CallsWebhook'];
+                    'Lifespan', 'CallsWebhook'
+                ];
 
-                if (count != 4 && count != 8 && count != 10) {
+                // Bad CSV flag
+                let bcsvFlag = hf.mif.badCSVFormat(data);
+
+                // Empty row flag
+                let erFlag = hf.mif.findEmptyRow(data);
+
+                if (erFlag == 1) {
+
+                    console.log('empty row in csv file.');
+                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload it again.' });
+
+                } else if (bcsvFlag == 1) {
+
+                    console.log('Bad csv')
+                    res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1 });
+
+                } else if (count != 4 && count != 8 && count != 10) {
 
                     console.log('More Column');
 
@@ -162,13 +179,6 @@ app.post('/upload', async (req, res) => {
                 } else if (count == 4) {
 
                     console.log('Count 4');
-
-                    // columnNames.forEach(col => {
-                    //     if (!ourColumns.includes(col)) {
-                    //         console.log('Bad CSV');
-                    //         res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1 });
-                    //     }
-                    // });
 
                     if (status == 0) {
                         // unpaid user

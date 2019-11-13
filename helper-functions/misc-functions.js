@@ -250,11 +250,61 @@ const generateDataUnpaidUsers = (data) => {
     }
 };
 
+const findEmptyRow = (data) => {
+
+    let count = countColumns(data);
+    let flag;
+
+    for (let i = 0; i < data.length; i++) {
+        let row = data[i];
+        let x = 0;
+        for (const col in row) {
+            if (row[col] === '') {
+                x++;
+            }
+        }
+        if (x == count) {
+            flag = 1;
+            break;
+        } else {
+            flag = 0;
+        }
+    }
+    return flag;
+};
+
+const badCSVFormat = (data) => {
+
+    let ourColumns = [
+        'IntentID', 'IntentName', 'Query', 'Response',
+        'Response2', 'Action', 'InputContext', 'OutputContext',
+        'Lifespan', 'CallsWebhook'
+    ];
+
+    let columnNames = getColumnNames(data);
+
+    let flag;
+
+    for (let i = 0; i < columnNames.length; i++) {
+        const col = columnNames[i];
+        if (!ourColumns.includes(col)) {
+            flag = 1;
+            break;
+        } else {
+            flag = 0
+        }
+    }
+
+    return flag;
+};
+
 module.exports = {
     getintentIDCount,
     countColumns,
     getColumnNames,
     removeDir,
     zipDirectory,
-    generateDataUnpaidUsers
+    generateDataUnpaidUsers,
+    findEmptyRow,
+    badCSVFormat
 }
