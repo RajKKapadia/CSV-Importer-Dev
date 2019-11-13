@@ -31,11 +31,15 @@ app.use(bodyParser.urlencoded({
 
 app.set('view engine', 'hbs');
 
+const config = require('./configuration/config');
+
+
+
 // Login with Google Configuration
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
     process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL
+    config['settings']['REDIRECT_URL']
 );
 
 const scopes = [

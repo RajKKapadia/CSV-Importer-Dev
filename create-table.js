@@ -1,20 +1,11 @@
 const { Pool } = require('pg');
 
+const config = require('./configuration/config');
 
-// For Heroku
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: true
+    connectionString: config['settings']['DATABASE_URL'],
+    ssl: config['settings']['ssl']
 });
-
-// // For Local Machine
-// const pool = new Pool({
-//     host: 'localhost',
-//     user: 'postgres',
-//     database: 'CSV-Importer',
-//     password: 'abc123',
-//     port: '5433'
-// });
 
 const createUserTable = async () => {
 
