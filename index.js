@@ -163,7 +163,7 @@ app.post('/upload', async (req, res) => {
                 if (erFlag == 1) {
 
                     console.log('empty row in csv file.');
-                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload it again.' });
+                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload the file again.' });
 
                 } else if (bcsvFlag == 1) {
 
