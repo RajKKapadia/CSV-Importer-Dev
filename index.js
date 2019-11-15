@@ -33,8 +33,6 @@ app.set('view engine', 'hbs');
 
 const config = require('./configuration/config');
 
-
-
 // Login with Google Configuration
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
@@ -46,8 +44,6 @@ const scopes = [
     'https://www.googleapis.com/auth/plus.login',
     'https://www.googleapis.com/auth/userinfo.email'
 ];
-
-
 
 app.get('', (req, res) => {
     res.render('index.hbs');
@@ -83,17 +79,42 @@ app.get('/getLogin', async (req, res) => {
         res.render('admin-dashboard.hbs');
     } else {
 
-        let query = {};
-        query['text'] = 'INSERT INTO userlog(email) VALUES($1)';
-        query['values'] = [userData['data']['email']];
-
-        let flag = await hf.dc.insertUserVisit(query);
+        let flag = await hf.dc.insertUserVisit(userData['data']['email']);
 
         if (flag == 1) {
-            res.render('upload.hbs');   
+
+            let result = await hf.dc.getUsedRowCount(userData['data']['email']);
+
+            if (result['status'] == 1) {
+
+                if (parseInt(result['count']) < 500) {
+                    res.render('upload.hbs', { flag: 0 });
+                } else {
+                    res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
+                }
+
+            } else {
+                res.render('upload.hbs', { flag: 0 });
+            }
+
         } else {
+
             console.log('Error at inserUserVisit.');
-            res.render('upload.hbs');
+
+            let result = await hf.dc.getUsedRowCount(userData['data']['email']);
+
+            if (result['status'] == 1) {
+
+                if (parseInt(result['count']) < 500) {
+                    res.render('upload.hbs', { flag: 0 });
+                } else {
+                    res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
+                }
+
+            } else {
+                res.render('upload.hbs', { flag: 0 });
+            }
+
         }
     }
 });
@@ -112,6 +133,7 @@ app.post('/upload', async (req, res) => {
 
         // Check for CSV extention
         if (file.mimetype !== 'text/csv') {
+            hf.dc.insertErrorLog(req.session.email, 'No File', { 'error': 'No data as bad extention.' });
             res.render('error.hbs', { message: 'Please upload CSV file only.' });
         }
 
@@ -136,6 +158,7 @@ app.post('/upload', async (req, res) => {
 
             if (error) {
                 // go to error page.
+                hf.dc.insertErrorLog(req.session.email, 'Unable to Upload File', { 'error': 'Something is wrong with upload.' });
                 res.render('error.hbs', { message: 'Unable to upload the file, please try again.' });
             } else {
 
@@ -147,13 +170,6 @@ app.post('/upload', async (req, res) => {
                 // Get all columns names
                 let columnNames = hf.mif.getColumnNames(data);
 
-                // Generate error page here, if the CSV file is not formatted as we want
-                let ourColumns = [
-                    'IntentID', 'IntentName', 'Query', 'Response',
-                    'Response2', 'Action', 'InputContext', 'OutputContext',
-                    'Lifespan', 'CallsWebhook'
-                ];
-
                 // Bad CSV flag
                 let bcsvFlag = hf.mif.badCSVFormat(data);
 
@@ -163,18 +179,44 @@ app.post('/upload', async (req, res) => {
                 if (erFlag == 1) {
 
                     console.log('empty row in csv file.');
+                    let tempData = [];
+                    for (let i = 0; i < data.length; i++) {
+                        if (i == 10) {
+                            break;
+                        }
+                        let row = data[i];
+                        tempData.push(row)
+                    }
+                    hf.dc.insertErrorLog(req.session.email, 'Empty Row', { errorData: tempData });
                     res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload the file again.' });
 
                 } else if (bcsvFlag == 1) {
 
-                    console.log('Bad csv')
+                    console.log('Bad csv');
+                    let tempData = [];
+                    for (let i = 0; i < data.length; i++) {
+                        if (i == 10) {
+                            break;
+                        }
+                        let row = data[i];
+                        tempData.push(row)
+                    }
+                    hf.dc.insertErrorLog(req.session.email, 'Bad CSV Format', { errorData: tempData });
                     res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1 });
 
                 } else if (count != 4 && count != 8 && count != 10) {
 
                     console.log('More Column');
-
-                    res.render('error.hbs', {message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1 })
+                    let tempData = [];
+                    for (let i = 0; i < data.length; i++) {
+                        if (i == 10) {
+                            break;
+                        }
+                        let row = data[i];
+                        tempData.push(row)
+                    }
+                    hf.dc.insertErrorLog(req.session.email, `${count} Column File`, { errorData: tempData });
+                    res.render('error.hbs', { message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1 })
 
                 } else if (count == 4) {
 
@@ -185,24 +227,24 @@ app.post('/upload', async (req, res) => {
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentFour(data, language);
                         let newData = hf.mif.generateDataUnpaidUsers(data);
-                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data: newData, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data: newData, message: 'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
                         hf.cip.createIntentFour(data, language);
                         res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data });
                     }
-                    
+
                 } else if (count == 8) {
 
                     console.log('Count 8');
-                    
+
                     if (status == 0) {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentEight(data, language);
                         let newData = hf.mif.generateDataUnpaidUsers(data);
-                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data: newData, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data: newData, message: 'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -213,20 +255,19 @@ app.post('/upload', async (req, res) => {
                 } else if (count == 10) {
 
                     console.log('Count 10');
-                    
+
                     if (status == 0) {
                         // unpaid user
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentTen(data, language);
                         let newData = hf.mif.generateDataUnpaidUsers(data);
-                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data: newData, message:'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data: newData, message: 'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
                         hf.cip.createIntentTen(data, language);
                         res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data });
                     }
-
                 }
             }
         });
@@ -239,14 +280,11 @@ app.get('/download', async (req, res) => {
 
     // Save JSON files to the DB
     fileNames = fs.readdirSync('./example/intents');
-    
+
     for (const i in fileNames) {
         let jsonData = fs.readFileSync(`./example/intents/${fileNames[i]}`);
         let data = JSON.parse(jsonData);
-        let query = {};
-        query['text'] = 'INSERT INTO csvdata(email, data) VALUES($1, $2)';
-        query['values'] = [req.session.email, {data}];
-        await hf.dc.insertCSVData(query);
+        await hf.dc.insertCSVData(req.session.email, data);
     }
 
     // create zip
@@ -262,11 +300,24 @@ app.get('/download', async (req, res) => {
         });
 });
 
-app.get('/again', (req, res) => {
+app.get('/again', async (req, res) => {
 
     hf.mif.removeDir('./upload');
     hf.mif.removeDir('./example');
-    res.render('upload.hbs');
+
+    let result = await hf.dc.getUsedRowCount(req.session.email);
+
+    if (result['status'] == 1) {
+
+        if (parseInt(result['count']) < 500) {
+            res.render('upload.hbs', { flag: 0 });
+        } else {
+            res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
+        }
+
+    } else {
+        res.render('upload.hbs', { flag: 0 });
+    }
 });
 
 app.get('/admin', (req, res) => {
@@ -279,17 +330,17 @@ app.get('/add-user-page', (req, res) => {
 
 app.post('/add-user', async (req, res) => {
 
-    var query = {};
+    let email, status;
 
     if (req.body.status) {
-        query['text'] = 'INSERT INTO users(email, status) VALUES($1, $2)';
-        query['values'] = [req.body.email, req.body.status];
+        email = req.body.email;
+        status = req.body.status;
     } else {
-        query['text'] = 'INSERT INTO users(email, status) VALUES($1, $2)';
-        query['values'] = [req.body.email, false];
+        email = req.body.email;
+        status = false;
     }
 
-    let flag = await hf.dc.insertUser(query);
+    let flag = await hf.dc.insertUser(email, status);
 
     if (flag == 1) {
         res.render('add-user.hbs', { successMessage: 'User added successfully.' });
@@ -300,24 +351,33 @@ app.post('/add-user', async (req, res) => {
 
 app.get('/view-users', async (req, res) => {
 
-    // get all the users
-    let data = await hf.dc.getAllUserEmail();
+    // get the login count
+    let result = await hf.dc.getLoginCount();
 
-    if (data['status'] == 1) {
+    if (result['status'] == 1) {
 
-        let emails = data['emails'];
+        let data = result['data'];
 
-        if (emails.length == 0) {
+        console.log(data);
+
+        if (data.length == 0) {
             res.render('view-users.hbs', { message: 'No user has visited the app.' });
         } else {
-            res.render('view-users.hbs', { emails });   
+            res.render('view-users.hbs', { data });
         }
-        
+
     } else {
         res.render('view-users.hbs');
     }
 });
 
+app.get('/logout', (req, res) => {
+
+    req.session.destroy();
+
+    res.render('index.hbs');
+});
+
 app.listen(process.env.PORT, () => {
-    console.log('Server is listening on port 5000.');
+    console.log(`Server is listening on port ${process.env.PORT}.`);
 });

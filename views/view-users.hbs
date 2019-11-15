@@ -33,13 +33,15 @@
                 <tr>
                     <th>Sr. No.</th>
                     <th>Email Address</th>
+                    <th>Login Count</th>
                 </tr>
             </thead>
             <tbody>
-                {{#each emails}}
+                {{#each data}}
                 <tr>
                     <td>{{@index}}</td>
-                    <td>{{this}}</td>
+                    <td>{{this.email}}</td>
+                    <td>{{this.count}}</td>
                 </tr>
                 {{/each}}
 

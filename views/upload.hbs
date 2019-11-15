@@ -20,6 +20,9 @@
         <div class="text-center">
             <h1 class="text-primary">Upload your CSV file</h1>
             <br />
+            {{#if message}}
+            <p class="text-danger">{{ message }}</p>
+            {{/if}}
             <form action="/upload" enctype="multipart/form-data" method="POST">
                 <div class="text-center">
                     <label>Language:</label>
@@ -29,7 +32,7 @@
                         <option value="zh-TW">Chinese - Traditional (zh-TW)</option>
                         <option value="da">Danish (da)</option>
                         <option value="nl">Dutch (nl)</option>
-                        <option value="en">English (en)</option>
+                        <option value="en" selected>English (en)</option>
                         <option value="en-AU">English - Australia (en-AU)</option>
                         <option value="en-CA">English - Canada (en-CA)</option>
                         <option value="en-GB">English - Great Britain (en-GB)</option>
@@ -60,7 +63,15 @@
                 </div>
                 <br />
                 <input type="file" name="upload">
+                {{#if flag}}
+                <button class="btn btn-disabled" disabled>Upload</button>
+                {{else}}
                 <button type="submit" class="button-primary">Upload</button>
+                {{/if}}
+            </form>
+            <br />
+            <form action="/logout" method="GET">
+                <button type="submit" class="btn btn-warning">Logout</button>
             </form>
         </div>
     </div>
