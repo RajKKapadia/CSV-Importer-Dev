@@ -12,9 +12,10 @@ require('dotenv').config();
 
 const hf = require('./helper-functions/export-function');
 
-const app = express();
-
 const publicDirectoryPath = path.join(__dirname, './public');
+const viewsPath = path.join(__dirname, './templates/views');
+
+const app = express();
 
 app.use(cookieParser('secret-key'));
 app.use(session({
@@ -30,6 +31,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.set('view engine', 'hbs');
+app.set('views', viewsPath);
 
 const config = require('./configuration/config');
 
@@ -227,7 +229,7 @@ app.post('/upload', async (req, res) => {
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentFour(data, language);
                         let newData = hf.mif.generateDataUnpaidUsers(data);
-                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data: newData, message: 'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        res.render('download.hbs', { four: 1, eight: 0, ten: 0, columnNames, data: newData, message: process.env.MESSAGE });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -244,7 +246,7 @@ app.post('/upload', async (req, res) => {
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentEight(data, language);
                         let newData = hf.mif.generateDataUnpaidUsers(data);
-                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data: newData, message: 'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        res.render('download.hbs', { four: 0, eight: 1, ten: 0, columnNames, data: newData, message: process.env.MESSAGE });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -261,7 +263,7 @@ app.post('/upload', async (req, res) => {
                         hf.ciup.createUserSays(data, language);
                         hf.ciup.createIntentTen(data, language);
                         let newData = hf.mif.generateDataUnpaidUsers(data);
-                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data: newData, message: 'Only 5 training phrases per Intent and max 100 rows will be there in the agent.zip file.' });
+                        res.render('download.hbs', { four: 0, eight: 0, ten: 1, columnNames, data: newData, message: process.env.MESSAGE });
                     } else {
                         // paid user
                         hf.cip.createUserSays(data, language);
@@ -292,8 +294,6 @@ app.get('/download', async (req, res) => {
         .then(() => {
             // download
             res.download(__dirname + '/agent.zip');
-            hf.mif.removeDir('./upload');
-            hf.mif.removeDir('./example');
         })
         .catch((error) => {
             res.render('error.hbs', { message: 'Unable to create agent.zip file, please try again after sometime.' });

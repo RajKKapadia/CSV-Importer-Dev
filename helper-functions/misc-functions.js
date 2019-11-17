@@ -70,8 +70,7 @@ const zipDirectory = (source, out) => {
         archive
             .directory(source, false)
             .on('error', err => reject(err))
-            .pipe(stream)
-            ;
+            .pipe(stream);
 
         stream.on('close', () => resolve());
         archive.finalize();
