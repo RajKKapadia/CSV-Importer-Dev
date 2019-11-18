@@ -77,7 +77,7 @@ app.get('/getLogin', async (req, res) => {
 
     req.session.email = userData['data']['email'];
 
-    if (userData['data']['email'] === 'aravind.mohanoor@gmail.com') {
+    if (userData['data']['email'] === process.env.ADMIN_EMAIL) {
         res.render('admin-dashboard.hbs');
     } else {
 
