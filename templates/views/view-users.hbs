@@ -17,16 +17,28 @@
     <br />
 
     <div class="container-fluid">
+        <form action="/logout" method="GET">
+            <div class="text-right">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </div>
+        </form>
+    </div>
+
+    <br />
+
+    <h1 class="text-center text-dark">App Users Email</h1>
+
+    <br />
+
+    <div class="container-fluid">
         <div class="text-center">
-            <h1 class="text-primary">App Users Email</h1>
-            <br />
             <form action="/add-user-page" method="GET">
-                <button type="submit">Add User</button>
+                <button type="submit" class="btn btn-secondary">Add User</button>
             </form>
         </div>
 
-        <h2 class="text-info">Following users have visited our app</h2>
-        <p class="text-info">{{message}}</p>
+        <h2 class="text-dark">Following users have visited our app</h2>
+        <p class="text-dark">{{message}}</p>
 
         <table class="table table-bordered">
             <thead>

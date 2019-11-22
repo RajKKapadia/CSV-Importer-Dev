@@ -6,14 +6,17 @@ const ef = require('express-fileupload');
 const bodyParser = require('body-parser');
 const { google } = require('googleapis');
 const session = require('express-session');
-var cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const csv = require('csvtojson');
+const hbs = require('hbs');
+const extract = require('extract-zip');
 require('dotenv').config();
 
 const hf = require('./helper-functions/export-function');
 
 const publicDirectoryPath = path.join(__dirname, './public');
 const viewsPath = path.join(__dirname, './templates/views');
+const partialsPath = path.join(__dirname, './templates/partials');
 
 const app = express();
 
@@ -32,6 +35,7 @@ app.use(bodyParser.urlencoded({
 
 app.set('view engine', 'hbs');
 app.set('views', viewsPath);
+hbs.registerPartials(partialsPath);
 
 const config = require('./configuration/config');
 
@@ -84,39 +88,9 @@ app.get('/getLogin', async (req, res) => {
         let flag = await hf.dc.insertUserVisit(userData['data']['email']);
 
         if (flag == 1) {
-
-            let result = await hf.dc.getUsedRowCount(userData['data']['email']);
-
-            if (result['status'] == 1) {
-
-                if (parseInt(result['count']) < 500) {
-                    res.render('upload.hbs', { flag: 0 });
-                } else {
-                    res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
-                }
-
-            } else {
-                res.render('upload.hbs', { flag: 0 });
-            }
-
+            res.render('select-action.hbs');
         } else {
-
-            console.log('Error at inserUserVisit.');
-
-            let result = await hf.dc.getUsedRowCount(userData['data']['email']);
-
-            if (result['status'] == 1) {
-
-                if (parseInt(result['count']) < 500) {
-                    res.render('upload.hbs', { flag: 0 });
-                } else {
-                    res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
-                }
-
-            } else {
-                res.render('upload.hbs', { flag: 0 });
-            }
-
+            res.render('select-action.hbs');
         }
     }
 });
@@ -304,20 +278,9 @@ app.get('/again', async (req, res) => {
 
     hf.mif.removeDir('./upload');
     hf.mif.removeDir('./example');
+    hf.mif.removeDir('./ziptocsv');
 
-    let result = await hf.dc.getUsedRowCount(req.session.email);
-
-    if (result['status'] == 1) {
-
-        if (parseInt(result['count']) < 500) {
-            res.render('upload.hbs', { flag: 0 });
-        } else {
-            res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
-        }
-
-    } else {
-        res.render('upload.hbs', { flag: 0 });
-    }
+    res.render('select-action.hbs');
 });
 
 app.get('/admin', (req, res) => {
@@ -376,6 +339,80 @@ app.get('/logout', (req, res) => {
     req.session.destroy();
 
     res.render('index.hbs');
+});
+
+app.get('/select-cz', async (req, res) => {
+
+    let result = await hf.dc.getUsedRowCount(req.session.email);
+
+    if (result['status'] == 1) {
+
+        if (parseInt(result['count']) < 500) {
+            res.render('upload.hbs', { flag: 0 });
+        } else {
+            res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
+        }
+
+    } else {
+        res.render('upload.hbs', { flag: 0 });
+    }
+});
+
+app.get('/select-zc', async (req, res) => {
+    res.render('upload-zc.hbs');
+});
+
+app.post('/upload-zc', async (req, res) => {
+
+    if (req.files) {
+
+        let file = req.files.upload;
+        let fileName = file.name;
+
+        // Write the file here
+        let dir = './ziptocsv';
+
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        // Check for CSV extention
+        if (file.mimetype !== 'application/zip') {
+            res.render('error.hbs', { message: 'Please upload .zip file only.' });
+        } else {
+            file.mv('./ziptocsv/' + fileName, async (error) => {
+
+                if (error) {
+                    // go to error page.
+                    res.render('error.hbs', { message: 'Unable to upload the file, please try again.' });
+                } else {
+    
+                    let source = path.join(__dirname, `./ziptocsv/${fileName}`);
+                    let destination = path.join(__dirname, `./ziptocsv/${fileName.split('.zip')[0]}/`);
+                    let csvPath = path.join(__dirname, './ziptocsv/10-column.csv')
+    
+                    await hf.mif.createCSVFile(source, destination, csvPath);
+    
+                    setTimeout(async () => {
+                        try {
+                            let data = await csv().fromFile('./ziptocsv/10-column.csv');
+                            let columnNames = hf.mif.getColumnNames(data);
+                            res.render('download-zc.hbs', { columnNames, data });
+                        } catch (error) {
+                            console.log('Error at Download Zip to CSV --> ', error);
+                            res.render('error.hbs', { message: 'Something went wrong, please try after sometime.' });
+                        }
+                    }, 100);
+                }
+            });
+        }
+    } else {
+        res.render('error.hbs', { message: 'Please choose a CSV file.' });
+    }
+});
+
+app.get('/download-zc', (req, res) => {
+    res.download(`${__dirname}/ziptocsv/10-column.csv`);
 });
 
 app.listen(process.env.PORT, () => {

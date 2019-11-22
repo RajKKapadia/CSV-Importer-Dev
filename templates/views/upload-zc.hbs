@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Upload Zip file</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <br />
+
+    {{>navbar}}
+
+    <br />
+
+    <h1 class="text-center text-dark">Upload your Zip file</h1>
+    <br />
+    {{#if message}}
+    <p class="text-center text-dark">{{ message }}</p>
+    {{/if}}
+
+    <br />
+
+    <div class="container-fluid">
+        <div class="text-center">
+            <form action="/upload-zc" enctype="multipart/form-data" method="POST">
+                <div class="text-center">
+                <input type="file" name="upload">
+                {{#if flag}}
+                <button class="btn btn-secondary btn-disabled" id="recordIt" disabled>Upload</button>
+                {{else}}
+                <button type="submit" class="btn btn-secondary" id="recordIt">Upload</button>
+                {{/if}}
+            </form>
+            <br />
+        </div>
+    </div>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-76380861-3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-76380861-3');
+    </script>
+
+</body>
+
+</html>

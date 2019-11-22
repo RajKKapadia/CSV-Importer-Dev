@@ -17,8 +17,16 @@
     <br />
 
     <div class="container-fluid">
+        <form action="/logout" method="GET">
+            <div class="text-right">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container-fluid">
         <div class="text-center">
-            <h1 class="text-primary">Add New User Here</h1>
+            <h1 class="text-dark">Add New User Here</h1>
             <br />
             <p class="text-success">{{successMessage}}</p>
             <p class="text-danger">{{errorMessage}}</p>
@@ -30,15 +38,15 @@
                 </div>
                 <br />
                 <div class="text-center">
-                    <label class="text-danger">Check for Paid User:</label>
+                    <label class="text-dark">Check for Paid User:</label>
                     <input type="checkbox" name="status" value="true">
                 </div>
                 <br />
-                <button type="submit" class="button-primary">Add User</button>
+                <button class="btn btn-secondary" type="submit" class="button-dark">Add User</button>
             </form>
             <br />
             <form action="/view-users" method="GET">
-                <button type="submit" class="button-primary">View App Users</button>
+                <button class="btn btn-secondary" type="submit" class="button-dark">View App Users</button>
             </form>
         </div>
     </div>

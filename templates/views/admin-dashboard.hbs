@@ -17,17 +17,40 @@
     <br />
 
     <div class="container-fluid">
+        <form action="/logout" method="GET">
+            <div class="text-right">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </div>
+        </form>
+    </div>
+
+    <br />
+
+    <h1 class="text-center text-dark">Admin Dashboard</h1>
+
+    <br />
+
+    <div class="container">
+
         <div class="text-center">
-            <h1 class="text-primary">Admin Dashboard</h1>
-            <br />
-            <form action="/add-user-page" method="GET">
-                <button type="submit" class="button-primary">Add User</button>
-            </form>
-            <br />
-            <form action="/view-users" method="GET">
-                <button type="submit" class="button-primary">View App Users</button>
-            </form>
+
+            <div class="row">
+                <div class="col">
+                    <p class="text-dark">Choose this option to Add new paid user</p>
+                    <form action="/add-user-page" method="GET">
+                        <button type="submit" class="btn btn-secondary">Add User</button>
+                    </form>
+                </div>
+                <div class="col">
+                    <p class="text-dark">Choose this option to see all users of the app</p>
+                    <form action="/view-users" method="GET">
+                        <button type="submit" class="btn btn-secondary">View App Users</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
+
     </div>
 
 </body>

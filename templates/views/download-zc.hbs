@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>Download Dialogflow agent ZIP file from CSV</title>
+    <title>Download CSV file from your ZIP file</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -20,7 +20,7 @@
 
     <br />
 
-    <h1 class="text-center text-dark">Download your Agent</h1>
+    <h1 class="text-center text-dark">Download your CSV file</h1>
 
     <br />
 
@@ -30,8 +30,8 @@
 
             <div class="row">
                 <div class="col">
-                    <p class="text-dark">Download agent.zip file</p>
-                    <form action="/download" method="GET">
+                    <p class="text-dark">Download CSV file</p>
+                    <form action="/download-zc" method="GET">
                         <button type="submit" class="btn btn-secondary" id="recordIt">Download</button>
                     </form>
                 </div>
@@ -45,7 +45,8 @@
     <br />
 
     <h2 class="text-dark">Please take a look at the data.</h2>
-    <p class="text-dark">{{ message }}</p>
+
+    <br />
 
     <table class="table table-bordered">
         <thead>
@@ -57,33 +58,6 @@
         </thead>
         <tbody>
 
-            {{#if four}}
-            {{#each data}}
-            <tr>
-                <td>{{this.IntentID}}</td>
-                <td>{{this.IntentName}}</td>
-                <td>{{this.Query}}</td>
-                <td>{{this.Response}}</td>
-            </tr>
-            {{/each}}
-            {{/if}}
-
-            {{#if eight}}
-            {{#each data}}
-            <tr>
-                <td>{{this.IntentID}}</td>
-                <td>{{this.IntentName}}</td>
-                <td>{{this.Query}}</td>
-                <td>{{this.Response}}</td>
-                <td>{{this.Action}}</td>
-                <td>{{this.InputContext}}</td>
-                <td>{{this.OutputContext}}</td>
-                <td>{{this.Lifespan}}</td>
-            </tr>
-            {{/each}}
-            {{/if}}
-
-            {{#if ten}}
             {{#each data}}
             <tr>
                 <td>{{this.IntentID}}</td>
@@ -98,7 +72,6 @@
                 <td>{{this.CallsWebhook}}</td>
             </tr>
             {{/each}}
-            {{/if}}
 
         </tbody>
     </table>

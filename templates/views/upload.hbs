@@ -16,21 +16,21 @@
 
     <br />
 
-    <form action="/logout" method="GET">
-        <div class="text-right">
-            <button type="submit" class="btn btn-secondary">Logout</button>
-        </div>
-    </form>
+    {{>navbar}}
+
+    <br />
+
+    <h1 class="text-center text-dark">Upload your CSV file</h1>
+    <br />
+    {{#if message}}
+    <p class="text-center text-dark">{{ message }}</p>
+    {{/if}}
 
     <br />
 
     <div class="container-fluid">
         <div class="text-center">
-            <h1 class="text-primary">Upload your CSV file</h1>
-            <br />
-            {{#if message}}
-            <p class="text-danger">{{ message }}</p>
-            {{/if}}
+
             <form action="/upload" enctype="multipart/form-data" method="POST">
                 <div class="text-center">
                     <label>Language:</label>
@@ -63,7 +63,7 @@
                         <option value="es">Spanish (es)</option>
                         <option value="es-419">Spanish - Latin America (es-419)</option>
                         <option value="es-ES">Spanish - Spain (es-ES)</option>
-                        <option value="sv">Swedish	(sv)</option>
+                        <option value="sv">Swedish (sv)</option>
                         <option value="th">Thai (th)</option>
                         <option value="tr">Turkish (tr)</option>
                         <option value="uk">Ukranian (uk)</option>
@@ -72,9 +72,9 @@
                 <br />
                 <input type="file" name="upload">
                 {{#if flag}}
-                <button class="btn btn-disabled" disabled>Upload</button>
+                <button class="btn btn-secondary btn-disabled" id="recordIt" disabled>Upload</button>
                 {{else}}
-                <button type="submit" class="button-primary">Upload</button>
+                <button type="submit" class="btn btn-secondary" id="recordIt">Upload</button>
                 {{/if}}
             </form>
             <br />

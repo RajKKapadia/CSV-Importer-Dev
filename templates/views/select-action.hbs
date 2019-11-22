@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>Error Page</title>
+    <title>Select an Action</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -16,26 +16,17 @@
 
     <br />
 
-    {{>navbar}}
+    <nav class="navbar navbar-light bg-light justify-content-end">
+        <form class="form-inline" action="/logout" method="GET">
+            <button class="btn btn-secondary" type="submit" id="recordIt">Logout</button>
+        </form>
+    </nav>
 
     <br />
 
-    <h1 class="text-center text-dark">Something is not right. See the error below.</h1>
-    <br />
-    <p class="text-center text-dark">{{message}}</p>
+    <h1 class="text-center text-dark">Choose an action to continue</h1>
 
     <br />
-
-    <div class="container-fluid">
-        <div class="text-center">
-            {{#if url}}
-            <p class="text-info">
-                <a href="https://airtable.com/shrptImAEmkRyH8he/tbl3GD5iv7NJfUjmi/viwmt00q6jm9gFUwR?blocks=hide"
-                    target="_blank">Sample CSV File</a>
-            </p>
-            {{/if}}
-        </div>
-    </div>
 
     <div class="container">
 
@@ -59,6 +50,7 @@
         </div>
 
     </div>
+
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-76380861-3"></script>
