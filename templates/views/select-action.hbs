@@ -41,8 +41,15 @@
                 </div>
                 <div class="col">
                     <p class="text-dark">Choose this option to convert an agent.zip into CSV file.</p>
+                    {{#if flag}}
+                    <p class="text-dark">{{message}}</p>
+                    {{/if}}
                     <form action="/select-zc" method="GET">
+                        {{#if flag}}
+                        <button class="btn btn-secondary" type="submit" id="recordIt" disabled>Zip to CSV Converter</button>
+                        {{else}}
                         <button class="btn btn-secondary" type="submit" id="recordIt">Zip to CSV Converter</button>
+                        {{/if}}
                     </form>
                 </div>
             </div>

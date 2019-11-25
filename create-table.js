@@ -7,57 +7,110 @@ const pool = new Pool({
     ssl: config['settings']['ssl']
 });
 
-const createUserTable = async () => {
+// const createUserTable = async () => {
+
+//     const client = await pool.connect();
+
+//     let response = await client.query('CREATE TABLE "users" (id bigserial NOT NULL, email character varying(100) NOT NULL, status boolean NOT NULL, PRIMARY KEY (id))');
+//     client.release();
+    
+//     return response;
+// };
+
+// const createCSVDataTable = async () => {
+
+//     const client = await pool.connect();
+
+//     let response = await client.query('CREATE TABLE "csvdata" (id bigserial NOT NULL, email character varying(100) NOT NULL, data jsonb NOT NULL, PRIMARY KEY (id))');
+//     client.release();
+    
+//     return response;
+// };
+
+// const createUserLog = async () => {
+
+//     const client = await pool.connect();
+
+//     let response = await client.query('CREATE TABLE "userlog" (id bigserial NOT NULL, email character varying(100) NOT NULL, PRIMARY KEY (id))');
+//     client.release();
+    
+//     return response;
+// };
+
+// const createErrorLogTable = async () => {
+
+//     const client = await pool.connect();
+
+//     let response = await client.query('CREATE TABLE "errorlog" (id bigserial NOT NULL, email character varying(100) NOT NULL, error character varying(500) NOT NULL, data jsonb NOT NULL, PRIMARY KEY (id))');
+//     client.release();
+    
+//     return response;
+// };
+
+const alterUserLog = async () => {
 
     const client = await pool.connect();
 
-    let response = await client.query('CREATE TABLE "users" (id bigserial NOT NULL, email character varying(100) NOT NULL, status boolean NOT NULL, PRIMARY KEY (id))');
+    let response = await client.query('ALTER TABLE "userlog" ADD COLUMN datetime character varying(100)');
     client.release();
     
     return response;
 };
 
-const createCSVDataTable = async () => {
+const alterCSVData = async () => {
 
     const client = await pool.connect();
 
-    let response = await client.query('CREATE TABLE "csvdata" (id bigserial NOT NULL, email character varying(100) NOT NULL, data jsonb NOT NULL, PRIMARY KEY (id))');
+    let response = await client.query('ALTER TABLE "csvdata" ADD COLUMN datetime character varying(100)');
     client.release();
     
     return response;
 };
 
-const createUserLog = async () => {
+const alterErrorLog = async () => {
 
     const client = await pool.connect();
 
-    let response = await client.query('CREATE TABLE "csvdata" (id bigserial NOT NULL, email character varying(100) NOT NULL, PRIMARY KEY (id))');
+    let response = await client.query('ALTER TABLE "errorlog" ADD COLUMN datetime character varying(100)');
     client.release();
     
     return response;
 };
 
-const createErrorLogTable = async () => {
+const alterUsers = async () => {
 
     const client = await pool.connect();
 
-    let response = await client.query('CREATE TABLE "errorlog" (id bigserial NOT NULL, email character varying(100) NOT NULL, error character varying(500) NOT NULL, data jsonb NOT NULL, PRIMARY KEY (id))');
+    let response = await client.query('ALTER TABLE "users" ADD COLUMN datetime character varying(100)');
+    client.release();
+    
+    return response;
+};
+
+const createUploadButtonData = async () => {
+
+    const client = await pool.connect();
+
+    let response = await client.query('CREATE TABLE "uploadcsvdata" (id bigserial NOT NULL, email character varying(100) NOT NULL, data jsonb NOT NULL, datetime character varying(100) NOT NULL, PRIMARY KEY (id))');
     client.release();
     
     return response;
 };
 
 const createTable = async () => {
-    // let a = await createUserTable();
-    // let b = await createCSVDataTable();
-    // let c = await createUserLog();
-    let d = await createErrorLogTable();
+
+    let a = await alterUserLog();
+    let b = await alterCSVData();
+    let c = await alterErrorLog();
+    let d = await alterUsers();
+    let e = await createUploadButtonData();
 
     return {
-        // 'Users': a,
-        // 'CSVData': b,
-        // 'UserLog': c
-        'ErrorLog': d
+        'alterUserLog': a,
+        'alterCSVData': b,
+        'alterErrorLog': c,
+        'alterUsers': d,
+        'createUploadButtonData': e
     };
 };
 

@@ -51,7 +51,7 @@ const getColumnNames = (data) => {
 // Remove directory from the system
 const removeDir = (dir_path) => {
     if (fs.existsSync(dir_path)) {
-        fs.readdirSync(dir_path).forEach(function(entry) {
+        fs.readdirSync(dir_path).forEach(function (entry) {
             var entry_path = path.join(dir_path, entry);
             if (fs.lstatSync(entry_path).isDirectory()) {
                 removeDir(entry_path);
@@ -96,21 +96,21 @@ const generateDataUnpaidUsers = (data) => {
     if (columnsCount == 4) {
 
         let index = 0, maxRows = 0, maxIntent;
-        
+
         let newData = [];
 
         for (let i = 0; i < result[1].length; i++) {
-    
+
             if (result[1][i] > 5) {
                 maxIntent = 5;
             } else {
                 maxIntent = result[1][i];
             }
-    
+
             for (let j = 0; j < maxIntent; j++) {
 
                 let tempData = {};
-    
+
                 tempData['IntentID'] = data[index]['IntentID'];
                 tempData['IntentName'] = data[index]['IntentName'];
                 tempData['Query'] = data[index]['Query'];
@@ -119,21 +119,21 @@ const generateDataUnpaidUsers = (data) => {
                 index++;
 
                 newData.push(tempData);
-    
+
                 // For unpaid user restriction
                 maxRows++;
                 if (maxRows == 99) {
                     maxRows++;
                     break;
                 }
-    
+
             }
 
             let diff = result[1][i] - maxIntent;
             for (let k = 0; k < diff; k++) {
                 index++;
             }
-    
+
             // For unpaid users
             if (maxRows == 100) {
                 break;
@@ -141,7 +141,7 @@ const generateDataUnpaidUsers = (data) => {
         }
 
         return newData;
-        
+
     } else if (columnsCount == 8) {
 
         let index = 0, maxRows = 0, maxIntent;
@@ -149,17 +149,17 @@ const generateDataUnpaidUsers = (data) => {
         let newData = [], tempData = {};
 
         for (let i = 0; i < result[1].length; i++) {
-    
+
             if (result[1][i] > 5) {
                 maxIntent = 5;
             } else {
                 maxIntent = result[1][i];
             }
-    
+
             for (let j = 0; j < maxIntent; j++) {
 
                 tempData = {};
-    
+
                 tempData['IntentID'] = data[index]['IntentID'];
                 tempData['IntentName'] = data[index]['IntentName'];
                 tempData['Query'] = data[index]['Query'];
@@ -172,27 +172,27 @@ const generateDataUnpaidUsers = (data) => {
                 index++;
 
                 newData.push(tempData);
-    
+
                 // For unpaid user restriction
                 maxRows++;
                 if (maxRows == 99) {
                     maxRows++;
                     break;
                 }
-    
+
             }
 
             let diff = result[1][i] - maxIntent;
             for (let k = 0; k < diff; k++) {
                 index++;
             }
-    
+
             // For unpaid users
             if (maxRows == 100) {
                 break;
             }
         }
-        
+
         return newData;
     } else {
 
@@ -201,17 +201,17 @@ const generateDataUnpaidUsers = (data) => {
         let newData = [], tempData = {};
 
         for (let i = 0; i < result[1].length; i++) {
-    
+
             if (result[1][i] > 5) {
                 maxIntent = 5;
             } else {
                 maxIntent = result[1][i];
             }
-    
+
             for (let j = 0; j < maxIntent; j++) {
 
                 tempData = {};
-    
+
                 tempData['IntentID'] = data[index]['IntentID'];
                 tempData['IntentName'] = data[index]['IntentName'];
                 tempData['Query'] = data[index]['Query'];
@@ -226,21 +226,21 @@ const generateDataUnpaidUsers = (data) => {
                 index++;
 
                 newData.push(tempData);
-    
+
                 // For unpaid user restriction
                 maxRows++;
                 if (maxRows == 99) {
                     maxRows++;
                     break;
                 }
-    
+
             }
 
             let diff = result[1][i] - maxIntent;
             for (let k = 0; k < diff; k++) {
                 index++;
             }
-    
+
             // For unpaid users
             if (maxRows == 100) {
                 break;
@@ -299,210 +299,261 @@ const badCSVFormat = (data) => {
     return flag;
 };
 
-const createCSVFile = async (source, destination, csvPath) => {
+const extractZipFile = async (source, destination) => {
 
     // this unzip function requires absolute path to the directory
-    extract(source, { dir: destination }, async (err) => {
+    return new Promise((resolve, reject) => {
+        extract(source, { dir: destination }, (error) => {
+            if (error) {
+                console.log('Error at unzip --> ', error);
+                reject({
+                    'status': 0
+                });
+            } else {
+                resolve({
+                    'status': 1
+                });
+            }
+        })
+    });
+};
 
-        let mainData = [];
+const createCSVFile = async (agentPath, csvPath) => {
 
-        if (err) {
-            console.log('Error at unzip --> ', err);
+    let mainData = [];
+
+    let fileNames = fs.readdirSync(`${agentPath}/intents`);
+
+    let language;
+
+    fileNames.forEach(fn => {
+        if (fn.includes('_usersays_')) {
+            let tempLang = fn.split('_usersays_')[1];
+            language = tempLang.split('.json')[0];
+        }
+    });
+
+    let index = 0, intentID = 1;
+
+    for (let i = 0; i < fileNames.length; i += 2) {
+
+        let one, two, intentName, queries = [],
+            response = [], response2 = [], action, inputContext = [],
+            outputContext = [], lifeSpan = [], callsWebhook;
+
+        if (fileNames[index].includes('_usersays_')) {
+            one = `${fileNames[index].split('_usersays_')[0]}.json`;
+            two = fileNames[index];
+        } else {
+            one = fileNames[index];
+            two = `${fileNames[index].split('.json')[0]}_usersays_${language}.json`;
+        }
+
+        if (two === 'NF') {
+            // Fallback intent
+            intentID++;
+            index++;
         } else {
 
-            let fileNames = fs.readdirSync(`${destination}intents`);
-
-            let language;
-
-            fileNames.forEach(fn => {
-                if (fn.includes('_usersays_')) {
-                    let tempLang = fn.split('_usersays_')[1];
-                    language = tempLang.split('.json')[0];
-                }
-            });
-
-            let index = 0, intentID = 1;
-
-            for (let i = 0; i < fileNames.length; i += 2) {
-
-                let one, two, intentName, queries = [],
-                    response = [], action, inputContext = [],
-                    outputContext = [], lifeSpan = [], callsWebhook;
-
-                if (fileNames[index].includes('_usersays_')) {
-                    if (fileNames[index].toLowerCase().includes('fallback')) {
-                        one = `${fileNames[index].split('_usersays_')[0]}.json`;
-                        two = 'NF';
-                    } else {
-                        one = `${fileNames[index].split('_usersays_')[0]}.json`;
-                        two = fileNames[index];
-                    }
-                } else {
-                    if (fileNames[index].toLowerCase().includes('fallback')) {
-                        one = fileNames[index];
-                        two = 'NF';
-                    } else {
-                        one = fileNames[index];
-                        two = `${fileNames[index].split('.json')[0]}_usersays_${language}.json`;
-                    }
-                }
-
-                if (two === 'NF') {
-                    // Fallback intent
-                } else {
-                    // Both intent is available
-                    let oneData = fs.readFileSync(`${destination}intents/${one}`);
-                    let twoData = fs.readFileSync(`${destination}intents/${two}`);
-
-                    let oneJson = JSON.parse(oneData);
-                    let twoJson = JSON.parse(twoData);
-
-                    // IntentID and IntentName
-                    intentName = oneJson['name'];
-                    action = oneJson['responses'][0]['action'];
-
-                    twoJson.forEach(data => {
-                        queries.push(data['data'][0]['text']);
-                    });
-
-                    let messages = oneJson['responses'][0]['messages'];
-
-                    messages.forEach(message => {
-                        let speech = message['speech'];
-                        let platform = message['platform'];
-                        if (platform !== undefined) {
-                        } else if (typeof (speech) === 'string') {
-                            response.push(speech);
-                        } else {
-                            speech.forEach(text => {
-                                response.push(text);
-                            });
-                        }
-                    });
-
-                    let contexts = oneJson['contexts'];
-
-                    if (contexts.length == 0) {
-                    } else {
-                        contexts.forEach(context => {
-                            inputContext.push(context);
-                        });
-                    }
-
-                    let affectedContexts = oneJson['responses'][0]['affectedContexts'];
-
-                    if (affectedContexts.length == 0) {
-                    } else {
-                        affectedContexts.forEach(ac => {
-                            outputContext.push(ac['name']);
-                            lifeSpan.push(ac['lifespan'])
-                        });
-                    }
-
-                    let webhook = oneJson['webhookUsed'];
-
-                    if (webhook) {
-                        callsWebhook = 'Yes';
-                    } else {
-                        callsWebhook = 'No';
-                    }
-                }
-
-                let tempIndex = 0;
-                for (let k = 0; k < fileNames.length; k += 2) {
-                    let tempData = {};
-                    if (tempIndex == 0) {
-
-                        tempData['IntentID'] = intentID;
-                        tempData['IntentName'] = intentName;
-                        
-                        if (queries[tempIndex]) {
-                            tempData['Query'] = queries[tempIndex];
-                        } else {
-                            tempData['Query'] = '';
-                        }
-
-                        if (response[tempIndex]) {
-                            tempData['Response'] = response[tempIndex];
-                        } else {
-                            tempData['Response'] = '';
-                        }
-
-                        tempData['Response2'] = '';
-
-                        tempData['Action'] = action;
-
-                        if (inputContext[tempIndex]) {
-                            tempData['InputContext'] = inputContext[tempIndex];
-                        } else {
-                            tempData['InputContext'] = '';
-                        }
-
-                        if (outputContext[tempIndex]) {
-                            tempData['OutputContext'] = outputContext[tempIndex];
-                        } else {
-                            tempData['OutputContext'] = '';
-                        }
-
-                        if (lifeSpan[tempIndex]) {
-                            tempData['Lifespan'] = lifeSpan[tempIndex];
-                        } else {
-                            tempData['Lifespan'] = '';
-                        }
-
-                        tempData['CallsWebhook'] = callsWebhook;
-
-                    } else {
-                        tempData['IntentID'] = intentID;
-                        tempData['IntentName'] = '';
-                        
-                        if (queries[tempIndex]) {
-                            tempData['Query'] = queries[tempIndex];
-                        } else {
-                            tempData['Query'] = '';
-                        }
-
-                        if (response[tempIndex]) {
-                            tempData['Response'] = response[tempIndex];
-                        } else {
-                            tempData['Response'] = '';
-                        }
-
-                        tempData['Response2'] = '';
-                        tempData['Action'] = '';
-
-                        if (inputContext[tempIndex]) {
-                            tempData['InputContext'] = inputContext[tempIndex];
-                        } else {
-                            tempData['InputContext'] = '';
-                        }
-
-                        if (outputContext[tempIndex]) {
-                            tempData['OutputContext'] = outputContext[tempIndex];
-                        } else {
-                            tempData['OutputContext'] = '';
-                        }
-
-                        if (lifeSpan[tempIndex]) {
-                            tempData['Lifespan'] = lifeSpan[tempIndex];
-                        } else {
-                            tempData['Lifespan'] = '';
-                        }
-                        
-                        tempData['CallsWebhook'] = '';
-
-                    }
-
-                    mainData.push(tempData);
-                    tempIndex++;
-                }
-                index++;
-                intentID++;
-            }
         }
-        const csv = new ObjectsToCsv(mainData);
-        await csv.toDisk(csvPath);
-    });
+
+        // Both intent is available
+        let oneData = fs.readFileSync(`${agentPath}/intents/${one}`);
+        let twoData = fs.readFileSync(`${agentPath}/intents/${two}`);
+
+        let oneJson = JSON.parse(oneData);
+        let twoJson = JSON.parse(twoData);
+
+        // IntentID and IntentName
+        intentName = oneJson['name'];
+        action = oneJson['responses'][0]['action'];
+
+        twoJson.forEach(data => {
+            queries.push(data['data'][0]['text']);
+        });
+
+        let messages = oneJson['responses'][0]['messages'];
+
+        let messageData = [];
+
+        messages.forEach(message => {
+            let platform = message['platform'];
+            if (platform !== undefined) {
+            } else {
+                messageData.push(message);
+            }
+        });
+
+        if (messageData.length == 2) {
+            let speechOne = messageData[0]['speech'];
+            let speechTwo = messageData[1]['speech'];
+
+            if (typeof (speechOne) === 'string') {
+                response.push(speechOne);
+            } else {
+                speechOne.forEach(so => {
+                    response.push(so);
+                });
+            }
+
+            if (typeof (speechTwo) === 'string') {
+                response2.push(speechTwo);
+            } else {
+                speechTwo.forEach(st => {
+                    response2.push(st);
+                });
+            }
+        } else {
+            messageData.forEach(md => {
+                let speech = md['speech'];
+                if (typeof(speech) === 'string') {
+                    response.push(speech);
+                } else {
+                    speech.forEach(s => {
+                        response.push(s);
+                    })
+                }
+            })
+        }
+
+        let contexts = oneJson['contexts'];
+
+        if (contexts.length == 0) {
+        } else {
+            contexts.forEach(context => {
+                inputContext.push(context);
+            });
+        }
+
+        let affectedContexts = oneJson['responses'][0]['affectedContexts'];
+
+        if (affectedContexts.length == 0) {
+        } else {
+            affectedContexts.forEach(ac => {
+                outputContext.push(ac['name']);
+                lifeSpan.push(ac['lifespan'])
+            });
+        }
+
+        let webhook = oneJson['webhookUsed'];
+
+        if (webhook) {
+            callsWebhook = 'Yes';
+        } else {
+            callsWebhook = 'No';
+        }
+
+        let tempLength;
+
+        if (queries.length >= response.length && queries.length >= response2.length) {
+            tempLength = queries.length;
+        } else if (response.length >= response2.length) {
+            tempLength = response.length;
+        } else {
+            tempLength = response2.length;
+        }
+
+        for (let k = 0; k < tempLength; k++) {
+            let tempData = {};
+            if (k == 0) {
+
+                tempData['IntentID'] = intentID;
+                tempData['IntentName'] = intentName;
+
+                if (queries[k]) {
+                    tempData['Query'] = queries[k];
+                } else {
+                    tempData['Query'] = '';
+                }
+
+                if (response[k]) {
+                    tempData['Response'] = response[k];
+                } else {
+                    tempData['Response'] = '';
+                }
+
+                if (response2[k]) {
+                    tempData['Response2'] = response2[k];
+                } else {
+                    tempData['Response2'] = '';
+                }
+
+                tempData['Action'] = action;
+
+                if (inputContext[k]) {
+                    tempData['InputContext'] = inputContext[k];
+                } else {
+                    tempData['InputContext'] = '';
+                }
+
+                if (outputContext[k]) {
+                    tempData['OutputContext'] = outputContext[k];
+                } else {
+                    tempData['OutputContext'] = '';
+                }
+
+                if (lifeSpan[k]) {
+                    tempData['Lifespan'] = lifeSpan[k];
+                } else {
+                    tempData['Lifespan'] = '';
+                }
+
+                tempData['CallsWebhook'] = callsWebhook;
+
+            } else {
+                tempData['IntentID'] = intentID;
+                tempData['IntentName'] = '';
+
+                if (queries[k]) {
+                    tempData['Query'] = queries[k];
+                } else {
+                    tempData['Query'] = '';
+                }
+
+                if (response[k]) {
+                    tempData['Response'] = response[k];
+                } else {
+                    tempData['Response'] = '';
+                }
+
+                if (response2[k]) {
+                    tempData['Response2'] = response2[k];
+                } else {
+                    tempData['Response2'] = '';
+                }
+
+                tempData['Action'] = '';
+
+                if (inputContext[k]) {
+                    tempData['InputContext'] = inputContext[k];
+                } else {
+                    tempData['InputContext'] = '';
+                }
+
+                if (outputContext[k]) {
+                    tempData['OutputContext'] = outputContext[k];
+                } else {
+                    tempData['OutputContext'] = '';
+                }
+
+                if (lifeSpan[k]) {
+                    tempData['Lifespan'] = lifeSpan[k];
+                } else {
+                    tempData['Lifespan'] = '';
+                }
+
+                tempData['CallsWebhook'] = '';
+
+            }
+
+            mainData.push(tempData);
+        }
+        index++;
+        intentID++;
+    }
+
+    const csv = new ObjectsToCsv(mainData);
+    await csv.toDisk(csvPath);
 };
 
 module.exports = {
@@ -514,5 +565,6 @@ module.exports = {
     generateDataUnpaidUsers,
     findEmptyRow,
     badCSVFormat,
+    extractZipFile,
     createCSVFile
 }

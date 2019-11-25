@@ -23,12 +23,12 @@ const checkMembership = async (email) => {
 };
 
 // Insert new user to DB
-const insertUser = async (email, status) => {
+const insertUser = async (email, status, datetime) => {
 
     let query = {};
 
-    query['text'] = 'INSERT INTO users(email, status) VALUES($1, $2)';
-    query['values'] = [email, status]
+    query['text'] = 'INSERT INTO users(email, status, datetime) VALUES($1, $2, $3)';
+    query['values'] = [email, status, datetime]
 
     const client = await pool.connect();
     let response = await client.query(query);
@@ -38,12 +38,12 @@ const insertUser = async (email, status) => {
 };
 
 // Insert CSV data to DB
-const insertCSVData = async (email, data) => {
+const insertCSVData = async (email, data, datetime) => {
 
     let query = {};
 
-    query['text'] = 'INSERT INTO csvdata(email, data) VALUES($1, $2)';
-    query['values'] = [email, { data }];
+    query['text'] = 'INSERT INTO csvdata(email, data, datetime) VALUES($1, $2, $3)';
+    query['values'] = [email, { data }, datetime];
 
     const client = await pool.connect();
     let response = await client.query(query);
@@ -53,11 +53,11 @@ const insertCSVData = async (email, data) => {
 };
 
 // Insert an email everytime a user visits the App
-const insertUserVisit = async (email) => {
+const insertUserVisit = async (email, datetime) => {
 
     let query = {};
-    query['text'] = 'INSERT INTO userlog(email) VALUES($1)';
-    query['values'] = [email];
+    query['text'] = 'INSERT INTO userlog(email, datetime) VALUES($1, $2)';
+    query['values'] = [email, datetime];
     
     const client = await pool.connect();
     let response = await client.query(query);
@@ -114,12 +114,27 @@ const getUsedRowCount = async (email) => {
 };
 
 // Insert error log to DB
-const insertErrorLog = async (email, error, data) => {
+const insertErrorLog = async (email, error, data, datetime) => {
 
     let query = {};
 
-    query['text'] = 'INSERT INTO errorlog(email, error, data) VALUES($1, $2, $3)';
-    query['values'] = [email, error, { data }];
+    query['text'] = 'INSERT INTO errorlog(email, error, data, datetime) VALUES($1, $2, $3, $4)';
+    query['values'] = [email, error, { data }, datetime.toLocaleString('hi', 'Asia/Kolkata')];
+
+    const client = await pool.connect();
+    let response = await client.query(query);
+    client.release();
+
+    return response['rowCount'];
+};
+
+// Insert CSV data to DB
+const insertUploadCSVData = async (email, data, datetime) => {
+
+    let query = {};
+
+    query['text'] = 'INSERT INTO uploadcsvdata(email, data, datetime) VALUES($1, $2, $3)';
+    query['values'] = [email, { data }, datetime];
 
     const client = await pool.connect();
     let response = await client.query(query);
@@ -135,5 +150,6 @@ module.exports = {
     insertUserVisit,
     getLoginCount,
     getUsedRowCount,
-    insertErrorLog
+    insertErrorLog,
+    insertUploadCSVData
 }

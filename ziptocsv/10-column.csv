@@ -1,0 +1,17 @@
+IntentID,IntentName,Query,Response,Response2,Action,InputContext,OutputContext,Lifespan,CallsWebhook
+1,Default Welcome Intent,just going to say hi,Hi! How are you doing?,This is a response 2.,input.welcome,,,,No
+1,,heya,Hello! How can I help you?,,,,,,
+1,,hello hi,Good day! What can I do for you today?,,,,,,
+1,,howdy,Greetings! How can I assist?,,,,,,
+1,,hey there,,,,,,,
+1,,hi there,,,,,,,
+1,,greetings,,,,,,,
+1,,hey,,,,,,,
+1,,long time no see,,,,,,,
+1,,hello,,,,,,,
+1,,lovely day isn't it,,,,,,,
+1,,I greet you,,,,,,,
+1,,hello again,,,,,,,
+1,,hi,,,,,,,
+1,,hello there,,,,,,,
+1,,a good day,,,,,,,

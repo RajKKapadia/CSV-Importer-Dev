@@ -85,12 +85,16 @@ app.get('/getLogin', async (req, res) => {
         res.render('admin-dashboard.hbs');
     } else {
 
-        let flag = await hf.dc.insertUserVisit(userData['data']['email']);
+        let datetime = new Date();
 
-        if (flag == 1) {
-            res.render('select-action.hbs');
+        await hf.dc.insertUserVisit(userData['data']['email'], datetime.toLocaleString('hi', 'Asia/Kolkata'));
+
+        let status = await hf.dc.checkMembership(userData['data']['email']);
+
+        if (status == 1) {
+            res.render('select-action.hbs', { flag: 0 });
         } else {
-            res.render('select-action.hbs');
+            res.render('select-action.hbs', { message: 'Please contact [EMAIL ADDRESS] to become paid user.', flag: 1 });
         }
     }
 });
@@ -102,6 +106,8 @@ app.post('/upload', async (req, res) => {
     console.log('Status of user --> ', status);
     console.log('Email address --> ', req.session.email);
 
+    let datetime = new Date();
+
     if (req.files) {
 
         let file = req.files.upload;
@@ -109,8 +115,8 @@ app.post('/upload', async (req, res) => {
 
         // Check for CSV extention
         if (file.mimetype !== 'text/csv') {
-            hf.dc.insertErrorLog(req.session.email, 'No File', { 'error': 'No data as bad extention.' });
-            res.render('error.hbs', { message: 'Please upload CSV file only.' });
+            hf.dc.insertErrorLog(req.session.email, 'No File', { 'error': 'No data as bad extention.' }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
+            res.render('error.hbs', { message: 'Please upload CSV file only.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
         }
 
         // set language
@@ -134,12 +140,15 @@ app.post('/upload', async (req, res) => {
 
             if (error) {
                 // go to error page.
-                hf.dc.insertErrorLog(req.session.email, 'Unable to Upload File', { 'error': 'Something is wrong with upload.' });
-                res.render('error.hbs', { message: 'Unable to upload the file, please try again.' });
+                hf.dc.insertErrorLog(req.session.email, 'Unable to Upload File', { 'error': 'Something is wrong with upload.' }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
+                res.render('error.hbs', { message: 'Unable to upload the file, please try again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
             } else {
 
                 // read the data
                 let data = await csv().fromFile('./upload/' + fileName);
+
+                // upload the data to DB
+                await hf.dc.insertUploadCSVData(req.session.email, data, datetime.toLocaleString('hi', 'Asia/Kolkata'));
 
                 // check the 4 8 10 column file hereand the call that function
                 let count = hf.mif.countColumns(data);
@@ -163,8 +172,8 @@ app.post('/upload', async (req, res) => {
                         let row = data[i];
                         tempData.push(row)
                     }
-                    hf.dc.insertErrorLog(req.session.email, 'Empty Row', { errorData: tempData });
-                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload the file again.' });
+                    hf.dc.insertErrorLog(req.session.email, 'Empty Row', { errorData: tempData }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
+                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload the file again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
 
                 } else if (bcsvFlag == 1) {
 
@@ -177,8 +186,8 @@ app.post('/upload', async (req, res) => {
                         let row = data[i];
                         tempData.push(row)
                     }
-                    hf.dc.insertErrorLog(req.session.email, 'Bad CSV Format', { errorData: tempData });
-                    res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1 });
+                    hf.dc.insertErrorLog(req.session.email, 'Bad CSV Format', { errorData: tempData }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
+                    res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1, status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
 
                 } else if (count != 4 && count != 8 && count != 10) {
 
@@ -191,8 +200,8 @@ app.post('/upload', async (req, res) => {
                         let row = data[i];
                         tempData.push(row)
                     }
-                    hf.dc.insertErrorLog(req.session.email, `${count} Column File`, { errorData: tempData });
-                    res.render('error.hbs', { message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1 })
+                    hf.dc.insertErrorLog(req.session.email, `${count} Column File`, { errorData: tempData }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
+                    res.render('error.hbs', { message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1, status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' })
 
                 } else if (count == 4) {
 
@@ -248,7 +257,7 @@ app.post('/upload', async (req, res) => {
             }
         });
     } else {
-        res.render('error.hbs', { message: 'Please choose a CSV file.' });
+        res.render('error.hbs', { message: 'Please choose a CSV file.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
     }
 });
 
@@ -257,10 +266,12 @@ app.get('/download', async (req, res) => {
     // Save JSON files to the DB
     fileNames = fs.readdirSync('./example/intents');
 
+    let datetime = new Date();
+
     for (const i in fileNames) {
         let jsonData = fs.readFileSync(`./example/intents/${fileNames[i]}`);
         let data = JSON.parse(jsonData);
-        await hf.dc.insertCSVData(req.session.email, data);
+        await hf.dc.insertCSVData(req.session.email, data, datetime.toLocaleString('hi', 'Asia/Kolkata'));
     }
 
     // create zip
@@ -270,7 +281,7 @@ app.get('/download', async (req, res) => {
             res.download(__dirname + '/agent.zip');
         })
         .catch((error) => {
-            res.render('error.hbs', { message: 'Unable to create agent.zip file, please try again after sometime.' });
+            res.render('error.hbs', { message: 'Unable to create agent.zip file, please try again after sometime.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
         });
 });
 
@@ -280,7 +291,13 @@ app.get('/again', async (req, res) => {
     hf.mif.removeDir('./example');
     hf.mif.removeDir('./ziptocsv');
 
-    res.render('select-action.hbs');
+    let status = hf.dc.checkMembership(req.session.email);
+
+    if (status == 1) {
+        res.render('select-action.hbs', { flag: 0 });
+    } else {
+        res.render('select-action.hbs', { message: 'Please contact [EMAIL ADDRESS] to become paid user.', flag: 1 });
+    }
 });
 
 app.get('/admin', (req, res) => {
@@ -303,7 +320,9 @@ app.post('/add-user', async (req, res) => {
         status = false;
     }
 
-    let flag = await hf.dc.insertUser(email, status);
+    let datetime = new Date();
+
+    let flag = await hf.dc.insertUser(email, status, datetime.toLocaleString('hi', 'Asia/Kolkata'));
 
     if (flag == 1) {
         res.render('add-user.hbs', { successMessage: 'User added successfully.' });
@@ -345,12 +364,14 @@ app.get('/select-cz', async (req, res) => {
 
     let result = await hf.dc.getUsedRowCount(req.session.email);
 
-    if (result['status'] == 1) {
+    let flag = await hf.dc.checkMembership(req.session.email);
+
+    if (result['status'] == 1 && flag == 0) {
 
         if (parseInt(result['count']) < 500) {
             res.render('upload.hbs', { flag: 0 });
         } else {
-            res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
+            res.render('upload.hbs', { flag: 1, message: 'Please contact [EMAIL ADDRESS] to enable your free service.' });
         }
 
     } else {
@@ -364,6 +385,10 @@ app.get('/select-zc', async (req, res) => {
 
 app.post('/upload-zc', async (req, res) => {
 
+    let status = await hf.dc.checkMembership(req.session.email);
+
+    console.log('status is --> ', status);
+
     if (req.files) {
 
         let file = req.files.upload;
@@ -371,43 +396,54 @@ app.post('/upload-zc', async (req, res) => {
 
         // Write the file here
         let dir = './ziptocsv';
-
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
 
-        // Check for CSV extention
         if (file.mimetype !== 'application/zip') {
-            res.render('error.hbs', { message: 'Please upload .zip file only.' });
+            res.render('error.hbs', { message: 'Please upload .zip file only.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
         } else {
             file.mv('./ziptocsv/' + fileName, async (error) => {
 
+                let source = path.join(__dirname, `./ziptocsv/${fileName}`);
+                let destination = path.join(__dirname, `./ziptocsv/${fileName.split('.zip')[0]}`);
+                let csvPath = path.join(__dirname, './ziptocsv/10-column.csv');
+
+                let status = await hf.mif.extractZipFile(source, destination);
+
+                let fallbackFlag = 0;
+
+                if (status['status'] == 1) {
+                    let intentFileNames = fs.readdirSync(`${destination}/intents`);
+                    for (let x = 0; x < intentFileNames.length; x++) {
+                        ifn = intentFileNames[x];
+                        if (ifn.toLowerCase().includes('fallback')) {
+                            fallbackFlag = 1;
+                            break;
+                        }
+                    }
+                }
+
                 if (error) {
                     // go to error page.
-                    res.render('error.hbs', { message: 'Unable to upload the file, please try again.' });
+                    res.render('error.hbs', { message: 'Unable to upload the file, please try again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                } else if (status['status'] == 0) {
+                    res.render('error.hbs', { message: 'Zip file is corrupted, please upload a uncorrupted zip file.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                } else if (fallbackFlag == 1) {
+                    res.render('error.hbs', { message: 'Agent zip file contains Fallback intent. Please remove Fallback intent json file and upload again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
                 } else {
-    
-                    let source = path.join(__dirname, `./ziptocsv/${fileName}`);
-                    let destination = path.join(__dirname, `./ziptocsv/${fileName.split('.zip')[0]}/`);
-                    let csvPath = path.join(__dirname, './ziptocsv/10-column.csv')
-    
-                    await hf.mif.createCSVFile(source, destination, csvPath);
-    
-                    setTimeout(async () => {
-                        try {
-                            let data = await csv().fromFile('./ziptocsv/10-column.csv');
-                            let columnNames = hf.mif.getColumnNames(data);
-                            res.render('download-zc.hbs', { columnNames, data });
-                        } catch (error) {
-                            console.log('Error at Download Zip to CSV --> ', error);
-                            res.render('error.hbs', { message: 'Something went wrong, please try after sometime.' });
-                        }
-                    }, 100);
+
+                    await hf.mif.createCSVFile(destination, csvPath);
+
+                    let data = await csv().fromFile('./ziptocsv/10-column.csv');
+                    let columnNames = hf.mif.getColumnNames(data);
+                    res.render('download-zc.hbs', { columnNames, data });
+
                 }
             });
         }
     } else {
-        res.render('error.hbs', { message: 'Please choose a CSV file.' });
+        res.render('error.hbs', { message: 'Please choose a CSV file.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
     }
 });
 

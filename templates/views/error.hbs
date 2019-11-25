@@ -16,7 +16,11 @@
 
     <br />
 
-    {{>navbar}}
+    <nav class="navbar navbar-light bg-light justify-content-end">
+        <form class="form-inline" action="/logout" method="GET">
+            <button class="btn btn-secondary" type="submit" id="recordIt">Logout</button>
+        </form>
+    </nav>
 
     <br />
 
@@ -51,7 +55,12 @@
                 <div class="col">
                     <p class="text-dark">Choose this option to convert an agent.zip into CSV file.</p>
                     <form action="/select-zc" method="GET">
+                        {{#if status}}
                         <button class="btn btn-secondary" type="submit" id="recordIt">Zip to CSV Converter</button>
+                        {{else}}
+                        <p class="text-dark">{{unpaidMessage}}</p>
+                        <button class="btn btn-secondary" type="submit" id="recordIt" disabled>Zip to CSV Converter</button>
+                        {{/if}}
                     </form>
                 </div>
             </div>
