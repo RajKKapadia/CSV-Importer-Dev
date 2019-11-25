@@ -94,7 +94,7 @@ app.get('/getLogin', async (req, res) => {
         if (status == 1) {
             res.render('select-action.hbs', { flag: 0 });
         } else {
-            res.render('select-action.hbs', { message: 'Please contact [EMAIL ADDRESS] to become paid user.', flag: 1 });
+            res.render('select-action.hbs', { message: 'Please contact raajforyou@gmail.com to become paid user.', flag: 1 });
         }
     }
 });
@@ -116,7 +116,7 @@ app.post('/upload', async (req, res) => {
         // Check for CSV extention
         if (file.mimetype !== 'text/csv') {
             hf.dc.insertErrorLog(req.session.email, 'No File', { 'error': 'No data as bad extention.' }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
-            res.render('error.hbs', { message: 'Please upload CSV file only.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+            res.render('error.hbs', { message: 'Please upload CSV file only.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
         }
 
         // set language
@@ -141,7 +141,7 @@ app.post('/upload', async (req, res) => {
             if (error) {
                 // go to error page.
                 hf.dc.insertErrorLog(req.session.email, 'Unable to Upload File', { 'error': 'Something is wrong with upload.' }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
-                res.render('error.hbs', { message: 'Unable to upload the file, please try again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                res.render('error.hbs', { message: 'Unable to upload the file, please try again.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
             } else {
 
                 // read the data
@@ -173,7 +173,7 @@ app.post('/upload', async (req, res) => {
                         tempData.push(row)
                     }
                     hf.dc.insertErrorLog(req.session.email, 'Empty Row', { errorData: tempData }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
-                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload the file again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                    res.render('error.hbs', { message: 'Uploaded CSV file has empty rows, please remove it and upload the file again.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
 
                 } else if (bcsvFlag == 1) {
 
@@ -187,7 +187,7 @@ app.post('/upload', async (req, res) => {
                         tempData.push(row)
                     }
                     hf.dc.insertErrorLog(req.session.email, 'Bad CSV Format', { errorData: tempData }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
-                    res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1, status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                    res.render('error.hbs', { message: 'Please check the CSV file, follow the strict format as shown in the link.', url: 1, status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
 
                 } else if (count != 4 && count != 8 && count != 10) {
 
@@ -201,7 +201,7 @@ app.post('/upload', async (req, res) => {
                         tempData.push(row)
                     }
                     hf.dc.insertErrorLog(req.session.email, `${count} Column File`, { errorData: tempData }, datetime.toLocaleString('hi', 'Asia/Kolkata'));
-                    res.render('error.hbs', { message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1, status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' })
+                    res.render('error.hbs', { message: `Please use either 4, 8 or 10 Column CSV file only, you have uploaded ${count} column file.`, url: 1, status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' })
 
                 } else if (count == 4) {
 
@@ -257,7 +257,7 @@ app.post('/upload', async (req, res) => {
             }
         });
     } else {
-        res.render('error.hbs', { message: 'Please choose a CSV file.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+        res.render('error.hbs', { message: 'Please choose a CSV file.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
     }
 });
 
@@ -281,7 +281,7 @@ app.get('/download', async (req, res) => {
             res.download(__dirname + '/agent.zip');
         })
         .catch((error) => {
-            res.render('error.hbs', { message: 'Unable to create agent.zip file, please try again after sometime.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+            res.render('error.hbs', { message: 'Unable to create agent.zip file, please try again after sometime.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
         });
 });
 
@@ -296,7 +296,7 @@ app.get('/again', async (req, res) => {
     if (status == 1) {
         res.render('select-action.hbs', { flag: 0 });
     } else {
-        res.render('select-action.hbs', { message: 'Please contact [EMAIL ADDRESS] to become paid user.', flag: 1 });
+        res.render('select-action.hbs', { message: 'Please contact raajforyou@gmail.com to become paid user.', flag: 1 });
     }
 });
 
@@ -371,7 +371,7 @@ app.get('/select-cz', async (req, res) => {
         if (parseInt(result['count']) < 500) {
             res.render('upload.hbs', { flag: 0 });
         } else {
-            res.render('upload.hbs', { flag: 1, message: 'Please contact [EMAIL ADDRESS] to enable your free service.' });
+            res.render('upload.hbs', { flag: 1, message: 'Please contact raajforyou@gmail.com to enable your free service.' });
         }
 
     } else {
@@ -401,7 +401,7 @@ app.post('/upload-zc', async (req, res) => {
         }
 
         if (file.mimetype !== 'application/zip') {
-            res.render('error.hbs', { message: 'Please upload .zip file only.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+            res.render('error.hbs', { message: 'Please upload .zip file only.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
         } else {
             file.mv('./ziptocsv/' + fileName, async (error) => {
 
@@ -426,11 +426,11 @@ app.post('/upload-zc', async (req, res) => {
 
                 if (error) {
                     // go to error page.
-                    res.render('error.hbs', { message: 'Unable to upload the file, please try again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                    res.render('error.hbs', { message: 'Unable to upload the file, please try again.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
                 } else if (status['status'] == 0) {
-                    res.render('error.hbs', { message: 'Zip file is corrupted, please upload a uncorrupted zip file.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                    res.render('error.hbs', { message: 'Zip file is corrupted, please upload a uncorrupted zip file.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
                 } else if (fallbackFlag == 1) {
-                    res.render('error.hbs', { message: 'Agent zip file contains Fallback intent. Please remove Fallback intent json file and upload again.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+                    res.render('error.hbs', { message: 'Agent zip file contains Fallback intent. Please remove Fallback intent json file and upload again.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
                 } else {
 
                     await hf.mif.createCSVFile(destination, csvPath);
@@ -443,7 +443,7 @@ app.post('/upload-zc', async (req, res) => {
             });
         }
     } else {
-        res.render('error.hbs', { message: 'Please choose a CSV file.', status, unpaidMessage: 'Please contact [EMAIL ADDRESS] to become paid user.' });
+        res.render('error.hbs', { message: 'Please choose a CSV file.', status, unpaidMessage: 'Please contact raajforyou@gmail.com to become paid user.' });
     }
 });
 
